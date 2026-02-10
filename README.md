@@ -60,6 +60,31 @@ make graph
 make slice
 ```
 
+## Chapter 7: Mission Objects (schema + templates + drivers)
+
+Mission Object examples live under:
+
+- `missions/schema/mission.schema.json` (demo schema)
+- `missions/templates/` (template examples)
+- `drivers/registry.json` (driver registry)
+
+Demo driver resolution (deterministic identity → command):
+
+```bash
+make driver-demo
+```
+
+## Chapter 8: Map-Updaters (keeping instructions aligned)
+
+Generate patch-style suggestions to keep `AGENTS.md` aligned with the repo's command panel:
+
+```bash
+make agents-suggest
+ls build/update_agents
+```
+
+These suggestions are not applied automatically.
+
 ## Chapter 9: Dream scan (Depth 0)
 
 Run a read-only entropy scan that emits a ranked worklist:

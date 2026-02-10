@@ -1,0 +1,49 @@
+{
+  "mission_id": "template-bounded-refactor",
+  "kind": "bounded_refactor",
+  "goal": "Apply a small mechanizable refactor under strict budgets.",
+  "scope": {
+    "target_dir": "product/src",
+    "write_allowlist": [
+      "product/src/**"
+    ],
+    "protected_paths": [
+      "factory/**",
+      "governance/**"
+    ]
+  },
+  "slice": {
+    "anchors": [
+      "product/src/tax_calculator.py#public"
+    ],
+    "terrain_roots": [
+      "product/src"
+    ],
+    "max_nodes": 25,
+    "max_tokens": 8000
+  },
+  "diff_policy": {
+    "must_be_diff_only": true,
+    "format": "unified_diff",
+    "allow_new_files": false,
+    "allow_deletes": false
+  },
+  "budgets": {
+    "max_iterations": 3,
+    "max_files_changed": 2,
+    "max_lines_changed": 80
+  },
+  "validators": [
+    {
+      "name": "tests",
+      "cmd": "make test"
+    }
+  ],
+  "telemetry": {
+    "trace_dir": "build/traces/template-bounded-refactor",
+    "emit": [
+      "diff",
+      "validator_output"
+    ]
+  }
+}

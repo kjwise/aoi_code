@@ -1,10 +1,11 @@
 .PHONY: help all sync validate request drift mission-dry-run graph slice branching-factor \
-	dream-scan test metrics ratchet-check ratchet-baseline clean
+	dream-scan driver-demo agents-suggest test metrics ratchet-check ratchet-baseline clean
 
 PY ?= python3
 
 MVF_SRC = product/src
 MVF_DOC = product/docs/architecture.md
+CHANGED ?= Makefile
 
 help:
 	@echo "Targets:" \
@@ -17,6 +18,8 @@ help:
 	 && echo "  make graph            (Ch6) build a tiny context graph snapshot" \
 	 && echo "  make slice            (Ch6) emit a slice packet from an anchor" \
 	 && echo "  make branching-factor  (Ch6) lint fan-out heuristics" \
+	 && echo "  make driver-demo      (Ch7) resolve a driver from deterministic identity" \
+	 && echo "  make agents-suggest   (Ch8) propose updates to AGENTS.md (Map-Updater demo)" \
 	 && echo "  make dream-scan        (Ch9) read-only entropy scan (Depth 0)" \
 	 && echo "  make test             run local unit tests (stdlib unittest)" \
 	 && echo "  make ratchet-check     (Ch11) compare current metrics to baselines" \
@@ -55,6 +58,12 @@ slice: graph
 
 branching-factor:
 	$(PY) factory/tools/lint_branching_factor.py --root examples/tax_service
+
+driver-demo:
+	$(PY) factory/tools/resolve_driver.py --action run_tests --target product/src
+
+agents-suggest:
+	$(PY) factory/tools/update_agents.py --path $(CHANGED)
 
 dream-scan:
 	$(PY) factory/tools/dream_scan.py --root .

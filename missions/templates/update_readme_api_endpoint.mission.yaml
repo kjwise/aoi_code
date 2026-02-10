@@ -1,0 +1,16 @@
+mission_id: update-readme-api-endpoint
+goal: "Ensure README documents /v2/users"
+scope:
+  file: README.md
+  section: "API Endpoints"
+constraints:
+  must_contain:
+    - "/v2/users"
+    - "pagination"
+  must_not_contain:
+    - "/v1/users"
+quality_gate:
+  cmd: ./scripts/validate_readme.sh
+fallbacks:
+  max_iterations: 3
+  on_fail: revert

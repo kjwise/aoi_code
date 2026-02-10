@@ -1,0 +1,48 @@
+{
+  "mission_id": "template-schema-evolution",
+  "kind": "schema_evolution",
+  "goal": "Propagate a schema change across dependent code surfaces.",
+  "scope": {
+    "target_dir": "services/",
+    "write_allowlist": [
+      "services/**",
+      "schemas/**"
+    ],
+    "protected_paths": [
+      ".github/**",
+      "governance/**"
+    ]
+  },
+  "slice": {
+    "anchors": [
+      "schemas/user.json#properties"
+    ],
+    "max_nodes": 40,
+    "max_tokens": 12000
+  },
+  "diff_policy": {
+    "must_be_diff_only": true,
+    "format": "unified_diff",
+    "allow_new_files": true,
+    "allow_deletes": false
+  },
+  "budgets": {
+    "max_iterations": 5,
+    "max_files_changed": 6,
+    "max_lines_changed": 300
+  },
+  "validators": [
+    {
+      "name": "tests",
+      "cmd": "make test"
+    }
+  ],
+  "telemetry": {
+    "trace_dir": "build/traces/template-schema-evolution",
+    "emit": [
+      "diff",
+      "validator_output",
+      "compressed_trace"
+    ]
+  }
+}

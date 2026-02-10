@@ -1,0 +1,51 @@
+{
+  "mission_id": "template-doc-sync",
+  "kind": "doc_sync",
+  "goal": "Keep a bounded doc section aligned with a source of truth.",
+  "scope": {
+    "target_file": "product/docs/architecture.md",
+    "allowed_heading": "## Public Interfaces",
+    "write_allowlist": [
+      "product/docs/architecture.md"
+    ]
+  },
+  "slice": {
+    "anchors": [
+      "product/docs/architecture.md#Public Interfaces"
+    ],
+    "terrain_roots": [
+      "product/src"
+    ],
+    "map_files": [
+      "product/docs/architecture.md"
+    ]
+  },
+  "diff_policy": {
+    "must_be_diff_only": true,
+    "format": "unified_diff",
+    "allow_new_files": false,
+    "allow_deletes": false
+  },
+  "budgets": {
+    "max_iterations": 3,
+    "max_files_changed": 1,
+    "max_lines_changed": 120
+  },
+  "prep": {
+    "template_path": "factory/templates/doc_sync_diff_request.txt",
+    "output_contract": "unified_diff_only"
+  },
+  "validators": [
+    {
+      "name": "map_alignment",
+      "cmd": "python3 factory/tools/validate_map_alignment.py --src product/src --doc product/docs/architecture.md"
+    }
+  ],
+  "telemetry": {
+    "trace_dir": "build/traces/template-doc-sync",
+    "emit": [
+      "diff",
+      "validator_output"
+    ]
+  }
+}
