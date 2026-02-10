@@ -1,0 +1,24 @@
+# GitHub Actions example: audit break-glass merges.
+#
+# This file is a *template* (not wired to this repo's CI).
+# The safety property: every break-glass merge is audited and flagged.
+name: Break-Glass Audit
+on:
+  push:
+    branches: [main]
+jobs:
+  audit-break-glass:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for break-glass markers
+        run: |
+          set -euo pipefail
+          msg=$(git log -1 --pretty=%B)
+          if echo "$msg" | grep -qiE 'break.?glass|INC-[0-9]+'; then
+            echo "::warning::Break-glass merge detected. Verify post-mortem is filed."
+            echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "message=$msg" >> "$GITHUB_OUTPUT"
+          fi
