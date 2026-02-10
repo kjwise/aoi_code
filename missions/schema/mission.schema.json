@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mission Object (demo)",
+  "type": "object",
+  "required": ["mission_id", "goal", "scope"],
+  "properties": {
+    "mission_id": {"type": "string"},
+    "goal": {"type": "string"},
+    "scope": {
+      "type": "object",
+      "properties": {
+        "target_file": {"type": "string"},
+        "allowed_heading": {"type": "string"},
+        "write_allowlist": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "slice": {"type": "object"},
+    "validators": {"type": "array"},
+    "budgets": {"type": "object"}
+  }
+}

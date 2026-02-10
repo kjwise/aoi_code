@@ -1,0 +1,16 @@
+{
+  "ratchets": {
+    "test_count": {
+      "direction": "up",
+      "baseline_file": ".metrics/baseline/test_count.json",
+      "current_file": ".metrics/current/test_count.json",
+      "tolerance": 0
+    },
+    "python_syntax_errors": {
+      "direction": "down",
+      "baseline_file": ".metrics/baseline/python_syntax_errors.json",
+      "current_file": ".metrics/current/python_syntax_errors.json",
+      "tolerance": 0
+    }
+  }
+}

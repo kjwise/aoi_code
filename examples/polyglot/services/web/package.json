@@ -1,0 +1,7 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "echo '(demo) no js tests wired' && exit 0"
+  }
+}

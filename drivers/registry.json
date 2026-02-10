@@ -1,0 +1,12 @@
+{
+  "run_tests": [
+    {
+      "match": {"language": "python"},
+      "cmd": ["python3", "-m", "unittest", "discover", "-s", "tests"]
+    },
+    {
+      "match": {"language": "javascript"},
+      "cmd": ["npm", "test"]
+    }
+  ]
+}

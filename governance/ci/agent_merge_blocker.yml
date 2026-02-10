@@ -1,0 +1,28 @@
+# GitHub Actions example: kill-switch gate for agent PRs.
+#
+# This file is a *template* (not wired to this repo's CI).
+# The safety property is the point: if the kill switch is active, agent PRs can't merge.
+
+name: Agent Merge Blocker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  check-kill-switch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if kill switch branch exists
+        run: |
+          set -euo pipefail
+          branch="disable-auto-merge"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "::error::Kill switch '$branch' found; autonomous merges suspended."
+            exit 1
+          fi

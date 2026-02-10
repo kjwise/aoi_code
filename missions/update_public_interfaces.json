@@ -1,0 +1,29 @@
+{
+  "mission_id": "update-public-interfaces",
+  "goal": "Keep product/docs/architecture.md#Public Interfaces aligned with product/src",
+  "scope": {
+    "target_file": "product/docs/architecture.md",
+    "allowed_heading": "## Public Interfaces",
+    "write_allowlist": [
+      "product/docs/architecture.md"
+    ]
+  },
+  "slice": {
+    "terrain_roots": [
+      "product/src"
+    ],
+    "map_files": [
+      "product/docs/architecture.md"
+    ]
+  },
+  "validators": [
+    {
+      "name": "map_alignment",
+      "cmd": "python3 factory/tools/validate_map_alignment.py --src product/src --doc product/docs/architecture.md"
+    }
+  ],
+  "budgets": {
+    "max_files_changed": 1,
+    "max_lines_changed": 120
+  }
+}

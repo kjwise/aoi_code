@@ -1,0 +1,16 @@
+Task: {task_id}
+
+You will produce a unified diff against: {target_file}
+
+Hard rules:
+- Output MUST be a unified diff only. No prose.
+- Only edit content inside the section headed exactly: {allowed_heading}
+- Do not change any other headings or files.
+
+Authoritative skeleton (from Terrain):
+{signatures_block}
+
+Current Map block (for reference):
+{current_block}
+
+Now output the unified diff.
