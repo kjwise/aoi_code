@@ -16,6 +16,10 @@ make all          # sync + validate (the MVF v0 loop)
 make test         # run the unit test suite
 ```
 
+## Skill: Deterministic Make-Driven Multi-Repo Architecture
+
+A companion, public guide: [`deterministic-make-driven-multi-repo-architecture.md`](skills/deterministic-make-driven-multi-repo-architecture.md)
+
 ## Chapter Map
 
 Each `make` target maps to a chapter in the book. The table below shows the relationship.
