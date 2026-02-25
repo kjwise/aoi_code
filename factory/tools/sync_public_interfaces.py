@@ -1,19 +1,56 @@
 from __future__ import annotations
 
 import argparse
-import ast
 import difflib
+import re
 from pathlib import Path
+
+_DEF_RE = re.compile(
+    r"^def\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*\((?P<args>[^)]*)\)\s*(?:->\s*[^:]+)?\s*:"
+)
+
+
+def _clean_param(param: str) -> str:
+    param = param.strip()
+    if not param or param == "*":
+        return ""
+
+    # strip leading * / ** (we don't encode varargs in the MVF signature surface)
+    while param.startswith("*"):
+        param = param[1:]
+
+    # strip annotations and defaults
+    param = param.split(":", 1)[0]
+    param = param.split("=", 1)[0]
+    return param.strip()
 
 
 def _public_function_signatures(src_root: Path) -> list[str]:
+    """Extract simple top-level signatures.
+
+    Effector-side extraction is intentionally lightweight (regex-based). The Validator
+    re-checks the same property using a stricter parser.
+    """
+
     signatures: set[str] = set()
     for path in sorted(src_root.rglob("*.py")):
-        module = ast.parse(path.read_text(encoding="utf-8"))
-        for node in module.body:
-            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_"):
-                args = [a.arg for a in node.args.args]
-                signatures.add(f"{node.name}({', '.join(args)})")
+        for line in path.read_text(encoding="utf-8").splitlines():
+            match = _DEF_RE.match(line)
+            if not match:
+                continue
+
+            name = match.group("name")
+            if name.startswith("_"):
+                continue
+
+            args = []
+            for part in match.group("args").split(","):
+                cleaned = _clean_param(part)
+                if cleaned:
+                    args.append(cleaned)
+
+            signatures.add(f"{name}({', '.join(args)})")
+
     return sorted(signatures)
 
 
