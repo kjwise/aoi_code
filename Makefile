@@ -8,7 +8,7 @@ MVF_SRC = product/src
 MVF_DOC = product/docs/architecture.md
 CHANGED ?= Makefile
 MOCK ?= 0
-EFFECTOR ?= tools/sync_public_interfaces.py
+EFFECTOR ?= factory/tools/sync_public_interfaces.py
 EFFECTOR_SEED ?=
 REMOTE ?= origin
 KILL_SWITCH_BRANCH ?= disable-auto-merge
@@ -37,13 +37,13 @@ help:
 	 && echo "  make clean            remove build artifacts"
 
 all: ## Run MVF v0 loop (with Salvage Protocol on failure)
-	$(PY) -m aoi all --src $(MVF_SRC) --doc $(MVF_DOC) --effector $(EFFECTOR) $(if $(EFFECTOR_SEED),--seed $(EFFECTOR_SEED),)
+	@$(PY) factory/tools/run_mvf_all.py --src $(MVF_SRC) --doc $(MVF_DOC) --effector $(EFFECTOR) $(if $(EFFECTOR_SEED),--seed $(EFFECTOR_SEED),)
 
 sync: ## Propose/apply Map updates from Terrain
-	$(PY) -m aoi sync --src $(MVF_SRC) --doc $(MVF_DOC)
+	$(PY) factory/tools/sync_public_interfaces.py --src $(MVF_SRC) --doc $(MVF_DOC) --apply
 
 validate: ## Enforce Map/Terrain alignment (Physics)
-	$(PY) -m aoi validate --src $(MVF_SRC) --doc $(MVF_DOC)
+	$(PY) factory/tools/validate_map_alignment.py --src $(MVF_SRC) --doc $(MVF_DOC)
 
 validate-missions:
 	$(PY) -m aoi validate-missions
@@ -52,12 +52,7 @@ request:
 	$(PY) -m aoi request --src $(MVF_SRC) --doc $(MVF_DOC)
 
 drift:
-	@if [ "$(MOCK)" = "1" ]; then \
-		echo "[drift] MOCK=1 (offline variants + validation)"; \
-		$(PY) -m aoi drift --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10 --mock --validate; \
-	else \
-		$(PY) -m aoi drift --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10; \
-	fi
+	$(PY) factory/tools/measure_drift.py --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10$(if $(filter 1,$(MOCK)), --mock --validate,)
 
 mission-dry-run:
 	$(PY) -m aoi mission-dry-run --mission missions/update_public_interfaces.json

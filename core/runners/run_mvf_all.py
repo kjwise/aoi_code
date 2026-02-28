@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -28,6 +29,10 @@ def _allocate_run_dir(root: Path) -> Path:
     raise RuntimeError("failed to allocate quarantine directory")
 
 
+def _print_cmd(parts: list[str]) -> None:
+    print(" ".join(shlex.quote(p) for p in parts))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run the MVF v0 loop (sync + validate) and salvage near-misses on failure."
@@ -37,7 +42,7 @@ def main() -> int:
     parser.add_argument(
         "--effector",
         type=str,
-        default="tools/sync_public_interfaces.py",
+        default="factory/tools/sync_public_interfaces.py",
         help="Effector script path (called with --src/--doc/--apply)",
     )
     parser.add_argument(
@@ -68,6 +73,8 @@ def main() -> int:
     if args.seed is not None:
         effector_cmd += ["--seed", str(args.seed)]
 
+    _print_cmd(["python3", *effector_cmd[1:]])
+
     effector = subprocess.run(
         effector_cmd,
         capture_output=True,
@@ -78,18 +85,18 @@ def main() -> int:
     if effector.stderr:
         print(effector.stderr, file=sys.stderr, end="" if effector.stderr.endswith("\n") else "\n")
 
-    validate_plain = subprocess.run(
-        [
-            sys.executable,
-            "tools/validate_map_alignment.py",
-            "--src",
-            str(args.src),
-            "--doc",
-            str(args.doc),
-        ],
-        capture_output=True,
-        text=True,
-    )
+    validator_cmd = [
+        sys.executable,
+        "factory/tools/validate_map_alignment.py",
+        "--src",
+        str(args.src),
+        "--doc",
+        str(args.doc),
+    ]
+
+    _print_cmd(["python3", *validator_cmd[1:]])
+
+    validate_plain = subprocess.run(validator_cmd, capture_output=True, text=True)
     if validate_plain.stdout:
         print(
             validate_plain.stdout,
@@ -108,7 +115,7 @@ def main() -> int:
     findings = subprocess.run(
         [
             sys.executable,
-            "tools/validate_map_alignment.py",
+            "factory/tools/validate_map_alignment.py",
             "--src",
             str(args.src),
             "--doc",
@@ -139,4 +146,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

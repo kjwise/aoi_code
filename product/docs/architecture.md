@@ -2,9 +2,7 @@
 
 ## Public Interfaces
 
-- `calculate_tax(amount, country, rate)`
-
-- `normalize_country(country)`
+- (generated)
 
 ## Notes
 
