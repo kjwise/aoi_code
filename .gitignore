@@ -5,5 +5,8 @@ __pycache__/
 # Build artifacts
 build/
 
+# Salvage Protocol quarantine
+.sdac/
+
 # Ratchet demo outputs
 .metrics/current/

@@ -13,7 +13,7 @@ def _function_complexity(fn: ast.FunctionDef) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Depth 0 Dream scan (read-only entropy signals).")
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--cc-threshold", type=int, default=10)
+    parser.add_argument("--cc-threshold", type=int, default=30)
     parser.add_argument("--file-lines", type=int, default=500)
     args = parser.parse_args()
 

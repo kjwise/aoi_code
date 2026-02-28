@@ -1,11 +1,17 @@
 .PHONY: help all sync validate request drift mission-dry-run graph slice branching-factor \
-	dream-scan driver-demo agents-suggest test metrics ratchet-check ratchet-baseline clean
+	dream-scan driver-demo agents-suggest validate-missions salvage kill-switch-engage kill-switch-release \
+	test metrics ratchet-check ratchet-baseline clean
 
 PY ?= python3
 
 MVF_SRC = product/src
 MVF_DOC = product/docs/architecture.md
 CHANGED ?= Makefile
+MOCK ?= 0
+EFFECTOR ?= tools/sync_public_interfaces.py
+EFFECTOR_SEED ?=
+REMOTE ?= origin
+KILL_SWITCH_BRANCH ?= disable-auto-merge
 
 help:
 	@echo "Targets:" \
@@ -21,65 +27,83 @@ help:
 	 && echo "  make driver-demo      (Ch7) resolve a driver from deterministic identity" \
 	 && echo "  make agents-suggest   (Ch8) propose updates to AGENTS.md (Map-Updater demo)" \
 	 && echo "  make dream-scan        (Ch9) read-only entropy scan (Depth 0)" \
+	 && echo "  make validate-missions  (Ch7) Mission Object hygiene (schema checks)" \
+	 && echo "  make salvage           list quarantined near-misses" \
+	 && echo "  make kill-switch-engage  push disable-auto-merge branch (CI kill switch)" \
+	 && echo "  make kill-switch-release delete disable-auto-merge branch (CI kill switch)" \
 	 && echo "  make test             run local unit tests (stdlib unittest)" \
 	 && echo "  make ratchet-check     (Ch11) compare current metrics to baselines" \
 	 && echo "  make ratchet-baseline  (Ch11) update baselines from current metrics" \
 	 && echo "  make clean            remove build artifacts"
 
-all: sync validate
+all: ## Run MVF v0 loop (with Salvage Protocol on failure)
+	$(PY) -m aoi all --src $(MVF_SRC) --doc $(MVF_DOC) --effector $(EFFECTOR) $(if $(EFFECTOR_SEED),--seed $(EFFECTOR_SEED),)
 
 sync: ## Propose/apply Map updates from Terrain
-	$(PY) factory/tools/sync_public_interfaces.py --src $(MVF_SRC) --doc $(MVF_DOC) --apply
+	$(PY) -m aoi sync --src $(MVF_SRC) --doc $(MVF_DOC)
 
 validate: ## Enforce Map/Terrain alignment (Physics)
-	$(PY) factory/tools/validate_map_alignment.py --src $(MVF_SRC) --doc $(MVF_DOC)
+	$(PY) -m aoi validate --src $(MVF_SRC) --doc $(MVF_DOC)
+
+validate-missions:
+	$(PY) -m aoi validate-missions
 
 request:
-	@mkdir -p build
-	$(PY) factory/tools/build_doc_sync_context.py --src $(MVF_SRC) --doc $(MVF_DOC) --out build/doc_sync_context.json
-	$(PY) factory/tools/render_doc_sync_request.py --context build/doc_sync_context.json --template factory/templates/doc_sync_diff_request.txt
+	$(PY) -m aoi request --src $(MVF_SRC) --doc $(MVF_DOC)
 
 drift:
-	$(PY) factory/tools/measure_drift.py --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10
+	@if [ "$(MOCK)" = "1" ]; then \
+		echo "[drift] MOCK=1 (offline variants + validation)"; \
+		$(PY) -m aoi drift --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10 --mock --validate; \
+	else \
+		$(PY) -m aoi drift --src $(MVF_SRC) --doc $(MVF_DOC) --runs 10; \
+	fi
 
 mission-dry-run:
-	$(PY) factory/tools/mission_dry_run.py --mission missions/update_public_interfaces.json
+	$(PY) -m aoi mission-dry-run --mission missions/update_public_interfaces.json
 
 graph:
-	@mkdir -p build
-	$(PY) factory/tools/build_context_graph.py --root examples/tax_service --out build/context_graph.json
+	$(PY) -m aoi graph --root examples/tax_service --out build/context_graph.json
 
 slice: graph
-	$(PY) factory/tools/slice_context_graph.py \
+	$(PY) -m aoi slice \
 		--graph build/context_graph.json \
 		--anchor examples/tax_service/tests/test_tax_service.py:test_calculate_income_tax_high_earner_scenario \
 		--out build/slice_packet.md
 	@echo "Wrote build/slice_packet.md"
 
 branching-factor:
-	$(PY) factory/tools/lint_branching_factor.py --root examples/tax_service
+	$(PY) -m aoi branching-factor --root examples/tax_service
 
 driver-demo:
-	$(PY) factory/tools/resolve_driver.py --action run_tests --target product/src
+	$(PY) -m aoi driver-demo --action run_tests --target product/src
 
 agents-suggest:
-	$(PY) factory/tools/update_agents.py --path $(CHANGED)
+	$(PY) -m aoi agents-suggest --path $(CHANGED)
+
+salvage:
+	$(PY) -m aoi salvage
 
 dream-scan:
-	$(PY) factory/tools/dream_scan.py --root .
+	$(PY) -m aoi dream-scan --root .
+
+kill-switch-engage:
+	git push $(REMOTE) HEAD:refs/heads/$(KILL_SWITCH_BRANCH)
+
+kill-switch-release:
+	git push $(REMOTE) :$(KILL_SWITCH_BRANCH)
 
 test:
-	$(PY) -m unittest discover -s tests -v
+	$(PY) -m aoi test
 
 metrics:
-	@mkdir -p .metrics/current
-	$(PY) factory/tools/collect_metrics.py --root . --out-dir .metrics/current
+	$(PY) -m aoi metrics --root . --out-dir .metrics/current
 
-ratchet-check: metrics
-	$(PY) factory/tools/ratchet_check.py --config governance/ratchets.json
+ratchet-check:
+	$(PY) -m aoi ratchet-check --config governance/ratchets.json
 
-ratchet-baseline: metrics
-	$(PY) factory/tools/ratchet_update_baseline.py --config governance/ratchets.json --yes
+ratchet-baseline:
+	$(PY) -m aoi ratchet-baseline --config governance/ratchets.json --yes
 
 clean:
 	rm -rf build

@@ -19,7 +19,7 @@
   "validators": [
     {
       "name": "map_alignment",
-      "cmd": "python3 factory/tools/validate_map_alignment.py --src product/src --doc product/docs/architecture.md"
+      "cmd": "python3 tools/validate_map_alignment.py --src product/src --doc product/docs/architecture.md"
     }
   ],
   "budgets": {

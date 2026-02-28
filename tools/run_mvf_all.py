@@ -3,9 +3,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from core.validators.validate_map_alignment import main
+from core.runners.run_mvf_all import main
 
 
 if __name__ == "__main__":

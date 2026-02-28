@@ -16,6 +16,12 @@ make all          # sync + validate (the MVF v0 loop)
 make test         # run the unit test suite
 ```
 
+Optional: the unified CLI (one command surface under `python3 -m aoi`):
+
+```bash
+python3 -m aoi --help
+```
+
 ## Skill: Deterministic Make-Driven Multi-Repo Architecture
 
 A companion, public guide: [`deterministic-make-driven-multi-repo-architecture.md`](skills/deterministic-make-driven-multi-repo-architecture.md)
@@ -132,7 +138,7 @@ make dream-scan
 By default, the repo is clean. Lower the threshold to see signals:
 
 ```bash
-python3 factory/tools/dream_scan.py --root . --cc-threshold 5
+python3 -m aoi dream-scan --root . --cc-threshold 5
 ```
 
 ## Chapter 10–11: Governance templates + ratchets
@@ -155,8 +161,12 @@ make ratchet-baseline   # update baselines (human-only action)
 
 ```text
 aoi_code/
+├── aoi/                       # Unified CLI package (`python3 -m aoi`)
 ├── AGENTS.md                  # Map surface: local instructions (Ch 8 demo)
+├── core/                      # Step implementations (Chapter 10 topology)
+├── dist/                      # Reserved (Chapter 10 topology)
 ├── Makefile                   # Command panel (all targets)
+├── mk/                        # Reserved (Chapter 10 topology)
 ├── README.md                  # This file
 ├── drivers/                   # Driver registry (Ch 7)
 ├── examples/
@@ -164,12 +174,13 @@ aoi_code/
 │   └── tax_service/           # Slicing example (Ch 6)
 ├── factory/
 │   ├── templates/             # Prep templates (Ch 2)
-│   └── tools/                 # All Python tools
+│   └── tools/                 # Legacy-compatible wrappers (old entrypoints)
 ├── governance/                # Governance templates (Ch 10–11)
 ├── missions/                  # Mission Object examples (Ch 5, 7)
 ├── product/                   # Demo product (Map + Terrain)
 │   ├── docs/architecture.md   # Map surface
 │   └── src/                   # Terrain (source code)
+├── tools/                     # Canonical entrypoints (Chapter 10 topology)
 └── tests/                     # Unit tests
 ```
 
